@@ -36,6 +36,12 @@ const userSchema = new mongoose.Schema(
                 type: String,
             },
         },
+        profilePicture:
+            {
+                type: String,
+                required: false,
+                default: null
+            },
         wishlist: [{ type: mongoose.Schema.ObjectId, ref: "Product" }],
         fcmToken: {
             type: String,
