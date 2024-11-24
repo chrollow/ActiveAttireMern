@@ -37,10 +37,15 @@ const userSchema = new mongoose.Schema(
             },
         },
         wishlist: [{ type: mongoose.Schema.ObjectId, ref: "Product" }],
+        fcmToken: {
+            type: String,
+            required: false,
+        },
        
         
     },
     { timestamps: true }
+
 );
 
 export default mongoose.model("User", userSchema);

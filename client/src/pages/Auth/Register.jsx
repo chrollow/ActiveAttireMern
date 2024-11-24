@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import auth from "../../assets/images/auth.png";
+// import auth from "../../assets/images/auth.png";
 import { Link } from "react-router-dom";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { toast } from "react-toastify";
@@ -13,6 +13,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import GoogleIcon from "@mui/icons-material/Google";
 import backgroundImage from "../../assets/images/banner.png";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../components/googleSignIn/config";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,10 +45,13 @@ const Register = () => {
   const handleSubmit = async (values, { resetForm }) => {
     setIsSubmitting(true);
     try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/v1/auth/register`,
         values
       );
+      const user = userCredential.user;
 
       if (response.status === 201) {
         toast.success("User Registered Successfully! Please Login...");

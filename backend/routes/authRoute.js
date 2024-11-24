@@ -1,11 +1,12 @@
 import express from "express";
 import { registerController } from "../controllers/auth/registerController.js";
-import { loginController } from "../controllers/auth/loginController.js";
+import { loginController, logoutController } from "../controllers/auth/loginController.js";
 import { userCheckController } from "../controllers/auth/userExist.js";
 import { forgotPasswordController } from "../controllers/auth/forgotPassword.js";
 import { updateDetailsController } from "../controllers/auth/updateDetails.js";
 import { deactivateController } from "../controllers/auth/deactivateAccount.js";
 import { isAdmin, requireSignIn } from "../middleware/authMiddleware.js";
+
 
 //router object
 const router = express.Router();
@@ -16,6 +17,8 @@ router.post("/register", registerController);
 
 //LOGIN || METHOD POST
 router.post("/login", loginController);
+//LOGIN || METHOD POST
+router.post("/logout", logoutController);
 
 //USER EXIST || METHOD POST
 router.post("/user-exist", userCheckController);
