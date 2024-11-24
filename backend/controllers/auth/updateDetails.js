@@ -4,57 +4,41 @@ import userModel from "../../models/userModel.js";
 export const updateDetailsController = async (req, res) => {
     try {
         const { newName, newEmail, newPhone, email } = req.body;
+
+        // Check if the user exists
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(401).send({
+            return res.status(404).send({
                 success: false,
-                message: "User Not Found!",
+                message: "User not found",
                 errorType: "invalidUser",
             });
         }
-        if (newName) {
-            const response = await userModel.findOneAndUpdate(
-                { email: email },
-                {
-                    name: newName,
-                }
-            );
-            res.status(200).send({
-                success: true,
-                message: "Name Updated Successfully!",
-            });
-        }
-        if (newEmail) {
-            const response = await userModel.findOneAndUpdate(
-                { email: email },
-                {
-                    email: newEmail,
-                }
-            );
-            res.status(200).send({
-                success: true,
-                message: "Email Updated Successfully!",
-            });
-        }
-        if (newPhone) {
-            const response = await userModel.findOneAndUpdate(
-                { email: email },
-                {
-                    phone: newPhone,
-                }
-            );
-            res.status(200).send({
-                success: true,
-                message: "Mobile Number Updated Successfully!",
-            });
-        }
 
-        //SUCCESS RESPONSE
+        // Prepare the update object
+        const updates = {};
+        if (newName) updates.name = newName;
+        if (newEmail) updates.email = newEmail;
+        if (newPhone) updates.phone = newPhone;
+
+        // Update the user details
+        const updatedUser = await userModel.findOneAndUpdate(
+            { email },
+            updates,
+            { new: true } // Returns the updated document
+        );
+
+        // Send success response
+        res.status(200).send({
+            success: true,
+            message: "Profile updated successfully",
+            user: updatedUser,
+        });
     } catch (error) {
-        console.log("Update Details Error: " + error);
+        console.error("Update Details Error:", error);
         res.status(500).send({
             success: false,
-            message: "Error in Updating Details",
+            message: "Error updating details",
             error,
         });
     }
