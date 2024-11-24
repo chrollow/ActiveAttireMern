@@ -7,7 +7,14 @@ import { GiCrossMark } from "react-icons/gi";
 import profileImage from "../../assets/images/profile.png";
 
 const UserMenu = ({ toggleMenu }) => {
-  const { auth, setAuth, LogOut } = useAuth();
+  const { auth, setAuth, LogOut } = useAuth(); // Access auth state here
+  const profilePictureUrl = auth?.user?.profilePicture; // Use the profilePicture from auth or fallback to empty string
+  console.log("auth:", auth);
+  console.log("auth.user:", auth?.user);
+  console.log("profilePicture:", auth?.user?.profilePicture);
+
+  console.log("profile URL" + profilePictureUrl);
+
   const navigate = useNavigate();
   const handleLogout = () => {
     navigate("/");
@@ -19,21 +26,65 @@ const UserMenu = ({ toggleMenu }) => {
       behavior: "smooth",
     });
   };
+
+  const handlePhoneSubmit = async (e) => {
+    e.preventDefault();
+    setPhoneSection(false);
+
+    try {
+      setProfile(false);
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/api/v1/auth/update-details`,
+        {
+          newPhone: phone,
+          email: auth?.user?.email,
+        }
+      );
+      setAuth({
+        ...auth,
+        user: {
+          ...auth.user,
+          phone: phone,
+        },
+      });
+      localStorage.removeItem("auth");
+      localStorage.setItem("auth", JSON.stringify(response.data));
+
+      toast.success(response.data.message);
+    } catch (error) {
+      console.error("Error:", error);
+      if (
+        error.response?.status === 401 &&
+        error.response.data?.errorType === "invalidUser"
+      ) {
+        toast.error("User not found!");
+      } else if (error.response?.status === 500) {
+        toast.error("Something went wrong! Please try again later.");
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col w-full gap-4">
       <div className="flex gap-4 p-3 bg-white shadow-md rounded-2xl">
         <div className="flex items-center justify-center">
-          <img
-            src={profileImage}
-            alt="User Profile"
-            className="object-contain w-20 h-20"
-          />
+          {profilePictureUrl && (
+            <div className="mt-4">
+              <img
+                src={profilePictureUrl || profileImage}
+                alt="Profile Picture"
+                className="w-[100px] h-[100px] rounded-full"
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col justify-center p-1">
           {/* <div className="text-[14px]">Hello,</div> */}
-          <div className="font-[600] text-[16px]">{auth?.user?.name?.charAt(0).toUpperCase() +
-                  auth?.user?.name?.slice(1)}</div>
+          <div className="font-[600] text-[16px]">
+            {auth?.user?.name?.charAt(0).toUpperCase() +
+              auth?.user?.name?.slice(1)}
+          </div>
         </div>
         <div
           className="hover:scale-[1.06] absolute right-4 top-2 cursor-pointer sm:hidden"
@@ -63,7 +114,6 @@ const UserMenu = ({ toggleMenu }) => {
                 Profile Information
               </div>
             </NavLink>
-
           </div>
         </div>
 
